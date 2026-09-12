@@ -25,5 +25,5 @@ estreia, status e sinopse de cada resultado encontrado.
 2. Abra o arquivo `index.html` no navegador
 
 ## Links
-- **Aplicação no ar (GitHub Pages):** https://Arthur-Bradley-Barroca.github.io/bootcamp2-app/
+- **Aplicação no ar (GitHub Pages):** https://arthur-bradley-barroca.github.io/bootcamp2-app/
 - **Repositório:** https://github.com/SEU-USUARIO/bootcamp2-app
