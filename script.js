@@ -15,10 +15,50 @@ const formulario = document.getElementById("formulario-busca");
 const campoBusca = document.getElementById("campo-busca");
 const areaResultado = document.getElementById("resultado");
 const listaSugestoes = document.getElementById("lista-sugestoes");
+const listaFavoritos = document.getElementById("favoritos-lista");
 
 let numeroDoProcesso = 0;
 
-// Traduz os status que a API devolve em inglês.
+// ---------------------------------------------------------------------------
+// Favoritos — persistidos em localStorage
+// ---------------------------------------------------------------------------
+
+const FAVORITOS_KEY = "arquivo-sombrio-favoritos";
+
+function carregarFavoritos() {
+  try {
+    return JSON.parse(localStorage.getItem(FAVORITOS_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function salvarFavoritos(lista) {
+  localStorage.setItem(FAVORITOS_KEY, JSON.stringify(lista));
+}
+
+function ehFavorito(showId) {
+  return carregarFavoritos().some((f) => f.id === showId);
+}
+
+function toggleFavorito(show) {
+  const favoritos = carregarFavoritos();
+  const idx = favoritos.findIndex((f) => f.id === show.id);
+
+  if (idx === -1) {
+    favoritos.push(show);
+  } else {
+    favoritos.splice(idx, 1);
+  }
+
+  salvarFavoritos(favoritos);
+  return favoritos;
+}
+
+// ---------------------------------------------------------------------------
+// Tradução e formatação
+// ---------------------------------------------------------------------------
+
 const TRADUCOES_STATUS = {
   "Running": "Em exibição",
   "Ended": "Encerrada",
@@ -26,7 +66,6 @@ const TRADUCOES_STATUS = {
   "In Development": "Em desenvolvimento",
 };
 
-// Remove as tags HTML que a TVmaze envia dentro do campo "summary".
 function limparHtml(textoComHtml) {
   if (!textoComHtml) return "Nenhum resumo consta no arquivo.";
   const div = document.createElement("div");
@@ -49,7 +88,10 @@ function ehTemaSombrio(generos) {
   return generos.some((genero) => GENEROS_SOMBRIOS.includes(genero));
 }
 
-// Monta o HTML de um cartão de resultado a partir de um objeto "show" da TVmaze.
+// ---------------------------------------------------------------------------
+// Renderização de cartões
+// ---------------------------------------------------------------------------
+
 function criarCartaoDeProcesso(show) {
   numeroDoProcesso += 1;
   const numero = String(numeroDoProcesso).padStart(3, "0");
@@ -57,6 +99,7 @@ function criarCartaoDeProcesso(show) {
   const generos = show.genres && show.genres.length ? show.genres : [];
   const sombrio = ehTemaSombrio(generos);
   const imagem = show.image && (show.image.medium || show.image.original);
+  const salvo = ehFavorito(show.id);
 
   const tagsGeneros = generos.length
     ? generos.map((genero) => `<span class="tag-genero">${genero}</span>`).join("")
@@ -65,6 +108,10 @@ function criarCartaoDeProcesso(show) {
   const capaHtml = imagem
     ? `<img class="capa" src="${imagem}" alt="Capa de ${show.name}" loading="lazy">`
     : `<div class="capa capa--vazia">Sem registro fotográfico</div>`;
+
+  const botaoAcao = salvo
+    ? `<button type="button" class="botao-remover" data-id="${show.id}" data-name="${show.name.replace(/"/g, '&quot;')}">Remover do arquivo</button>`
+    : `<button type="button" class="botao-guardar" data-id="${show.id}" data-name="${show.name.replace(/"/g, '&quot;')}">Guardar no arquivo</button>`;
 
   return `
     <article class="processo">
@@ -90,10 +137,37 @@ function criarCartaoDeProcesso(show) {
         </div>
         <p class="rotulo-sinopse">Resumo do caso</p>
         <p class="sinopse">${limparHtml(show.summary)}</p>
+        <div class="favorito-acoes">${botaoAcao}</div>
       </div>
     </article>
   `;
 }
+
+function criarCartaoFavorito(show) {
+  const imagem = show.image && (show.image.medium || show.image.original);
+  const capaHtml = imagem
+    ? `<img class="capa" src="${imagem}" alt="Capa de ${show.name}" loading="lazy">`
+    : `<div class="capa capa--vazia">Sem registro fotográfico</div>`;
+
+  const meta = [show.status, show.premiered ? show.premiered.slice(0, 4) : "N/D"]
+    .filter(Boolean)
+    .join(" · ");
+
+  return `
+    <div class="favorito-card">
+      ${capaHtml}
+      <h3 class="favorito-nome">${show.name}</h3>
+      <p class="favorito-meta">${meta || "Sem dados"}</p>
+      <div class="favorito-acoes">
+        <button type="button" class="botao-remover" data-id="${show.id}" data-name="${show.name.replace(/"/g, '&quot;')}">Remover do arquivo</button>
+      </div>
+    </div>
+  `;
+}
+
+// ---------------------------------------------------------------------------
+// Estados da área de resultados
+// ---------------------------------------------------------------------------
 
 function mostrarCarregando() {
   areaResultado.innerHTML = `
@@ -119,41 +193,29 @@ function mostrarVazio(termo) {
   `;
 }
 
-// Função principal: busca um título na TVmaze e renderiza os resultados.
-async function buscarNoArquivo(termoOriginal) {
-  const termo = termoOriginal.trim();
+// ---------------------------------------------------------------------------
+// Renderização da lista de favoritos
+// ---------------------------------------------------------------------------
 
-  if (!termo) {
-    mostrarErro("Digite o nome de um filme ou série para abrir um processo.");
+function renderizarFavoritos() {
+  const favoritos = carregarFavoritos();
+
+  if (favoritos.length === 0) {
+    listaFavoritos.innerHTML = `
+      <p class="estado-vazio">
+        Nenhum caso guardado ainda. Clique em "Guardar no arquivo" em
+        qualquer processo para salvá-lo aqui.
+      </p>
+    `;
     return;
   }
 
-  mostrarCarregando();
-  numeroDoProcesso = 0;
-
-  try {
-    const resposta = await fetch(`${API_BASE}/search/shows?q=${encodeURIComponent(termo)}`);
-
-    if (!resposta.ok) {
-      throw new Error(`Falha na consulta (status ${resposta.status})`);
-    }
-
-    const resultados = await resposta.json();
-
-    if (!resultados || resultados.length === 0) {
-      mostrarVazio(termo);
-      return;
-    }
-
-    const cartoes = resultados.map((item) => criarCartaoDeProcesso(item.show)).join("");
-    areaResultado.innerHTML = cartoes;
-  } catch (erro) {
-    console.error("Erro ao consultar a TVmaze:", erro);
-    mostrarErro(
-      "Não foi possível acessar os arquivos centrais agora. Verifique sua conexão e tente novamente em instantes."
-    );
-  }
+  listaFavoritos.innerHTML = favoritos.map(criarCartaoFavorito).join("");
 }
+
+// ---------------------------------------------------------------------------
+// Eventos — busca
+// ---------------------------------------------------------------------------
 
 formulario.addEventListener("submit", (evento) => {
   evento.preventDefault();
@@ -167,3 +229,131 @@ listaSugestoes.addEventListener("click", (evento) => {
   campoBusca.value = titulo;
   buscarNoArquivo(titulo);
 });
+
+// ---------------------------------------------------------------------------
+// Eventos — favoritos (delegação, pois os cartões são injetados dinamicamente)
+// ---------------------------------------------------------------------------
+
+areaResultado.addEventListener("click", (evento) => {
+  const botao = evento.target.closest(".botao-guardar, .botao-remover");
+  if (!botao) return;
+
+  const id = Number(botao.dataset.id);
+  const name = botao.dataset.name;
+
+  // Busca o show completo entre os resultados visuais para manter metadados.
+  const cartao = botao.closest(".processo");
+  const show = buscarShowPorIdNoDom(id, cartao);
+
+  if (!show) {
+    // Fallback: reconstrói um objeto mínimo a partir do que temos.
+    show = { id, name };
+  }
+
+  const favoritos = toggleFavorito(show);
+  renderizarFavoritos();
+
+  // Atualiza a interface dos resultados sem rebuscá-los.
+  numeroDoProcesso = 0;
+  const termo = campoBusca.value.trim() || " ";
+  areaResultado.innerHTML = "";
+
+  // Re-renderiza apenas os cartões visíveis com o novo estado.
+  const resultadosVisiveis = [...areaResultado.querySelectorAll(".processo")];
+  // (não há mais resultados visiveis aqui — o innerHTML foi limpo)
+  // Melhor: re-executar a busca se houver termo.
+  if (campoBusca.value.trim()) {
+    buscarNoArquivo(campoBusca.value);
+  } else {
+    renderizarFavoritos();
+  }
+});
+
+listaFavoritos.addEventListener("click", (evento) => {
+  const botao = evento.target.closest(".botao-remover");
+  if (!botao) return;
+
+  const id = Number(botao.dataset.id);
+  const favoritos = carregarFavoritos();
+  const idx = favoritos.findIndex((f) => f.id === id);
+  if (idx === -1) return;
+
+  favoritos.splice(idx, 1);
+  salvarFavoritos(favoritos);
+  renderizarFavoritos();
+});
+
+// ---------------------------------------------------------------------------
+// Busca principal
+// ---------------------------------------------------------------------------
+
+// Mantém uma referência dos shows retornados pela última busca para permitir
+// a remoção imediata sem re-buscar.
+let ultimosShows = [];
+
+async function buscarNoArquivo(termoOriginal) {
+  const termo = termoOriginal.trim();
+
+  if (!termo) {
+    mostrarErro("Digite o nome de um filme ou série para abrir um processo.");
+    return;
+  }
+
+  mostrarCarregando();
+  numeroDoProcesso = 0;
+  ultimosShows = [];
+
+  try {
+    const resposta = await fetch(
+      `${API_BASE}/search/shows?q=${encodeURIComponent(termo)}`
+    );
+
+    if (!resposta.ok) {
+      throw new Error(`Falha na consulta (status ${resposta.status})`);
+    }
+
+    const resultados = await resposta.json();
+
+    if (!resultados || resultados.length === 0) {
+      mostrarVazio(termo);
+      return;
+    }
+
+    ultimosShows = resultados.map((item) => item.show);
+    const cartoes = ultimosShows.map((show) => criarCartaoDeProcesso(show)).join("");
+    areaResultado.innerHTML = cartoes;
+  } catch (erro) {
+    console.error("Erro ao consultar a TVmaze:", erro);
+    mostrarErro(
+      "Não foi possível acessar os arquivos centrais agora. Verifique sua conexão e tente novamente em instantes."
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function buscarShowPorIdNoDom(id, container) {
+  const scope = container || areaResultado;
+  const showElement = scope.querySelector(`.botao-guardar[data-id="${id}"], .botao-remover[data-id="${id}"]`);
+  if (!showElement) return null;
+
+  const cartao = showElement.closest(".processo, .favorito-card");
+  if (!cartao) return null;
+
+  const nomeEl = cartao.querySelector(".nome-titulo, .favorito-nome");
+  if (!nomeEl) return null;
+
+  // Tenta achar um show na lista recente; se não achar, monta um mínimo.
+  const recente = ultimosShows.find((s) => s.id === id);
+  if (recente) return recente;
+
+  return { id, name: nomeEl.textContent };
+}
+
+// ---------------------------------------------------------------------------
+// Inicialização
+// ---------------------------------------------------------------------------
+
+renderizarFavoritos();
