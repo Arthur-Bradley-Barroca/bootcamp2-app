@@ -1,28 +1,29 @@
-# Arquivo Sombrio
+# Atlas das Frutas Faladas
 
 ## Autor
 Arthur Bradley Barroca — Matrícula 22603901
 
 ## Descrição
-Um catálogo de séries e filmes de terror, suspense e slasher: o usuário
-digita o nome de um título (ou escolhe um dos "casos sugeridos") e a
-aplicação monta um dossiê visual com pôster, gêneros, avaliação, ano de
-estreia, status e sinopse de cada resultado encontrado.
-
-## API utilizada
-- Nome da API e link da documentação: [TVmaze API](https://www.tvmaze.com/api)
-- Endpoint(s) consumido(s): `GET https://api.tvmaze.com/search/shows?q=:termo`
+Um atlas interativo das expressões idiomáticas da língua portuguesa do Brasil,
+com foco em expressões que envolvem frutas, legumes e oleaginosas. O usuário
+pode buscar por expressão, fruta ou região, explorar o significado de cada
+expressão, ver exemplos de uso e mapear onde cada expressão é mais comum no
+Brasil.
 
 ## Funcionalidades
-- Buscar um filme/série pelo nome digitado em um campo de texto
-- Clicar em um dos "casos sugeridos" (chips) para preencher a busca e consultar na hora
-- Ver, para cada resultado: pôster, gêneros, ano de estreia, status, avaliação e sinopse
-- Receber um selo de "Caso confirmado" quando o título já pertence a um gênero de terror/suspense/mistério
-- Ver mensagens amigáveis quando a busca não encontra nada ou quando a API está fora do ar
+- Buscar expressões por nome da fruta, pelo texto da expressão ou por trecho da explicação
+- Clicar em um dos "chips" de frutas sugeridas para filtrar imediatamente
+- Ver, para cada expressão: nome, fruta associada, explicação detalhada, exemplo de uso e regiões onde é encontrada
+- Mapa interativo das 5 regiões do Brasil com indicação de onde cada expressão foi identificada
+- Salvar expressões favoritas em localStorage — sobrevive ao fechar o navegador
+- Remover expressões da lista de favoritos
 
 ## Como executar localmente
-1. Clone: `git clone URL_DO_REPOSITORIO`
+1. Clone: `git clone https://github.com/arthur-bradley-barroca/bootcamp2-app.git`
 2. Abra o arquivo `index.html` no navegador
+
+## Banco de dados
+As expressões foram compiladas com base no conceito de "Atlas de Idiomáticas do Português do Brasil", pesquisa acadêmica de Elisa Duarte Teixeira (2026), com foco em expressões culinárias e de frutas.
 
 ## Links
 - **Aplicação no ar (GitHub Pages):** https://arthur-bradley-barroca.github.io/bootcamp2-app/
