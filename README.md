@@ -26,4 +26,4 @@ estreia, status e sinopse de cada resultado encontrado.
 
 ## Links
 - **Aplicação no ar (GitHub Pages):** https://arthur-bradley-barroca.github.io/bootcamp2-app/
-- **Repositório:** https://github.com/SEU-USUARIO/bootcamp2-app
+- **Repositório:** https://github.com/arthur-bradley-barroca/bootcamp2-app

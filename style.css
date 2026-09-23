@@ -371,6 +371,97 @@ main {
 }
 
 /* -------------------------------------------------------------------------
+   Favoritos — seção "Meus Favoritos"
+   ------------------------------------------------------------------------- */
+
+.secao-favoritos {
+  margin-top: 3rem;
+  padding: 2rem 0;
+  border-top: 2px dashed var(--papel-escuro);
+}
+
+.titulo-favoritos {
+  margin: 0 0 0.25rem;
+  font-family: var(--fonte-titulo);
+  font-size: 1.6rem;
+  color: var(--sangue-vivo);
+}
+
+.subtit-favoritos {
+  margin: 0 0 1.5rem;
+  color: var(--neblina);
+  font-size: 0.85rem;
+}
+
+.grade-favoritos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.favorito-card {
+  position: relative;
+  background-color: var(--papel);
+  color: var(--tinta);
+  border-top: 5px solid var(--sangue);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.8rem 1rem 1rem;
+}
+
+.favorito-nome {
+  margin: 0;
+  font-family: var(--fonte-titulo);
+  font-size: 1.1rem;
+  line-height: 1.25;
+}
+
+.favorito-meta {
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+
+.favorito-acoes {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+}
+
+.botao-guardar,
+.botao-remover {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--tinta);
+  background-color: transparent;
+  color: var(--tinta);
+  font-family: var(--fonte-corpo);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.botao-guardar:hover,
+.botao-remover:hover {
+  background-color: var(--sangue);
+  border-color: var(--sangue);
+  color: var(--papel);
+}
+
+.botao-guardar--salvo {
+  background-color: var(--sangue);
+  border-color: var(--sangue);
+  color: var(--papel);
+}
+
+.botao-guardar:disabled,
+.botao-remover:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* -------------------------------------------------------------------------
    Rodapé
    ------------------------------------------------------------------------- */
 
