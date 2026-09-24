@@ -370,22 +370,174 @@ main {
   overflow: hidden;
 }
 
-/* -------------------------------------------------------------------------
-   Rodapé
-   ------------------------------------------------------------------------- */
-
-.rodape {
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 1.5rem;
-  text-align: center;
-  color: var(--neblina);
-  font-size: 0.8rem;
-}
-
-/* -------------------------------------------------------------------------
-   Responsivo
-   ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------\n   Rodapé\n   ------------------------------------------------------------------------- */
+\n
+\n.rodape {
+\n  max-width: 1080px;
+\n  margin: 0 auto;
+\n  padding: 1.5rem;
+\n  text-align: center;
+\n  color: var(--neblina);
+\n  font-size: 0.8rem;
+\n}
+\n
+\n/* -------------------------------------------------------------------------
+\n   Favoritos (ETAPA 02 - Persistencia)
+\n   ------------------------------------------------------------------------- */
+\n
+\n.secao-favoritos {
+\n  margin-top: 2.5rem;
+\n  background-color: var(--bg-painel);
+\n  border: 2px solid var(--papel-escuro);
+\n  border-radius: 6px;
+\n  padding: 1.5rem;
+\n}
+\n
+\n.titulo-favoritos {
+\n  margin: 0 0 1rem;
+\n  font-family: var(--fonte-titulo);
+\n  font-size: 1.4rem;
+\n  color: var(--papel);
+\n}
+\n
+\n.grade-favoritos {
+\n  display: grid;
+\n  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+\n  gap: 1rem;
+\n}
+\n
+\n.sem-favoritos {
+\n  grid-column: 1 / -1;
+\n  color: var(--neblina);
+\n  opacity: 0.7;
+\n  font-size: 0.9rem;
+\n}
+\n
+\n.favorito-card {
+\n  position: relative;
+\n  background-color: var(--papel);
+\n  color: var(--tinta);
+\n  border-top: 6px solid var(--sangue);
+\n  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
+\n  overflow: hidden;
+\n}
+\n
+\n.favorito-card .capa {
+\n  width: 100%;
+\n  aspect-ratio: 2 / 3;
+\n  object-fit: cover;
+\n  display: block;
+\n}
+\n
+\n.favorito-card .capa--vazia {
+\n  display: flex;
+\n  align-items: center;
+\n  justify-content: center;
+\n  text-align: center;
+\n  padding: 0.75rem;
+\n  font-size: 0.7rem;
+\n  opacity: 0.5;
+\n}
+\n
+\n.favorito-card .generos {
+\n  display: flex;
+\n  flex-wrap: wrap;
+\n  gap: 0.3rem;
+\n  padding: 0.5rem 0.75rem 0;
+\n}
+\n
+\n.favorito-card .tag-genero {
+\n  padding: 0.1rem 0.4rem;
+\n  border: 1px solid var(--tinta);
+\n  font-size: 0.65rem;
+\n}
+\n
+\n.favorito-nome {
+\n  margin: 0.5rem 0.75rem 0.25rem;
+\n  font-family: var(--fonte-titulo);
+\n  font-size: 1rem;
+\n  line-height: 1.2;
+\n}
+\n
+\n.favorito-meta {
+\n  margin: 0 0.75rem 0.5rem;
+\n  font-size: 0.7rem;
+\n  opacity: 0.6;
+\n}
+\n
+\n.favorito-acoes {
+\n  padding: 0 0.75rem 0.75rem;
+\n}
+\n
+\n.botao-guardar {
+\n  display: block;
+\n  width: 100%;
+\n  padding: 0.5rem;
+\n  border: 2px solid var(--sangue);
+\n  background-color: var(--sangue);
+\n  color: var(--papel);
+\n  font-family: var(--fonte-corpo);
+\n  font-size: 0.8rem;
+\n  font-weight: 700;
+\n  cursor: pointer;
+\n  text-align: center;
+\n  transition: background-color 0.15s ease;
+\n}
+\n
+\n.botao-guardar:hover {
+\n  background-color: var(--sangue-vivo);
+\n}
+\n
+\n.botao-guardar:disabled {
+\n  opacity: 0.6;
+\n  cursor: not-allowed;
+\n}
+\n
+\n.botao-jaguardado {
+\n  background-color: var(--papel-escuro);
+\n  border-color: var(--papel-escuro);
+\n  color: var(--tinta);
+\n  cursor: default;
+\n}
+\n
+\n.botao-remover {
+\n  display: block;
+\n  width: 100%;
+\n  padding: 0.4rem;
+\n  border: 1px solid var(--sangue);
+\n  background-color: transparent;
+\n  color: var(--sangue-vivo);
+\n  font-family: var(--fonte-corpo);
+\n  font-size: 0.75rem;
+\n  cursor: pointer;
+\n  text-align: center;
+\n}
+\n
+\n.botao-remover:hover {
+\n  background-color: var(--sangue);
+\n  color: var(--papel);
+\n}
+\n
+\n.botao-remover:disabled {
+\n  opacity: 0.5;
+\n  cursor: not-allowed;
+\n}
+\n
+\n.botao-limpar {
+\n  display: inline-block;
+\n  margin-top: 0.75rem;
+\n  padding: 0.4rem 0.8rem;
+\n  border: 1px solid var(--papel-escuro);
+\n  background-color: transparent;
+\n  color: var(--neblina);
+\n  font-family: var(--fonte-corpo);
+\n  font-size: 0.8rem;
+\n  cursor: pointer;
+\n}
+\n
+\n/* -------------------------------------------------------------------------
+\n   Responsivo
+\n   ------------------------------------------------------------------------- */
 
 @media (max-width: 480px) {
   .linha-busca {

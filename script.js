@@ -11,6 +11,67 @@ const API_BASE = "https://api.tvmaze.com";
 // os resultados que já nascem dentro do universo terror/suspense.
 const GENEROS_SOMBRIOS = ["Horror", "Thriller", "Mystery", "Crime", "Supernatural"];
 
+// ==========================================================================
+// CONFIGURAÇÃO SUPABASE (ETAPA 02 - Persistência)
+// Substituir com os dados do projeto Supabase
+// ==========================================================================
+const SUPABASE_URL = "https://SEU-PROJETO.supabase.co";
+const SUPABASE_KEY = "SUA_CHAVE_ANON";
+
+let supabaseCliente = null;
+
+async function initSupabase() {
+  if (!SUPABASE_URL || SUPABASE_URL.includes("SEU-PROJETO")) {
+    console.warn("Supabase não configurado. Configure SUPABASE_URL e SUPABASE_KEY no script.js");
+    return null;
+  }
+  try {
+    const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+    supabaseCliente = createClient(SUPABASE_URL, SUPABASE_KEY);
+    console.log("Supabase conectado com sucesso");
+    return supabaseCliente;
+  } catch (erro) {
+    console.error("Erro ao inicializar Supabase:", erro);
+    return null;
+  }
+}
+
+async function listarFavoritos() {
+  if (!supabaseCliente) return [];
+  try {
+    const { data, error } = await supabaseCliente
+      .from("favoritos")
+      .select("*")
+      .order("criado_em", { ascending: false });
+    if (error) { console.error("Erro ao listar favoritos:", error); return []; }
+    return data || [];
+  } catch (erro) { console.error("Erro na consulta:", erro); return []; }
+}
+
+async function salvarFavorito(show) {
+  if (!supabaseCliente) { console.error("Supabase não inicializado"); return null; }
+  try {
+    const { data, error } = await supabaseCliente.from("favoritos").insert({
+      nome_show: show.name,
+      generos: show.genres && show.genres.length ? show.genres.join(", ") : null,
+      imagem_url: show.image && (show.image.medium || show.image.original) || null,
+      avaliacao: show.rating && show.rating.average ? parseFloat(show.rating.average) : null,
+      status: show.status,
+      regiaodeestreia: show.premiered ? show.premiered.slice(0, 4) : null,
+    }).select().single();
+    if (error) { console.error("Erro ao salvar:", error); return null; }
+    return data;
+  } catch (erro) { console.error("Erro na operação:", erro); return null; }
+}
+
+async function removerFavorito(id) {
+  if (!supabaseCliente) return;
+  try {
+    const { error } = await supabaseCliente.from("favoritos").delete().eq("id", id);
+    if (error) console.error("Erro ao remover:", error);
+  } catch (erro) { console.error("Erro na operação:", erro); }
+}
+
 const formulario = document.getElementById("formulario-busca");
 const campoBusca = document.getElementById("campo-busca");
 const areaResultado = document.getElementById("resultado");
@@ -50,7 +111,7 @@ function ehTemaSombrio(generos) {
 }
 
 // Monta o HTML de um cartão de resultado a partir de um objeto "show" da TVmaze.
-function criarCartaoDeProcesso(show) {
+function criarCartaoDeProcesso(show, favoritoId = null) {
   numeroDoProcesso += 1;
   const numero = String(numeroDoProcesso).padStart(3, "0");
 
@@ -65,6 +126,11 @@ function criarCartaoDeProcesso(show) {
   const capaHtml = imagem
     ? `<img class="capa" src="${imagem}" alt="Capa de ${show.name}" loading="lazy">`
     : `<div class="capa capa--vazia">Sem registro fotográfico</div>`;
+
+  const jaSalvo = !!favoritoId;
+  const botaoAcao = jaSalvo
+    ? `<div class="favorito-acoes"><button type="button" class="botao-remover" data-db-id="${favoritoId}">Remover do arquivo</button></div>`
+    : `<div class="favorito-acoes"><button type="button" class="botao-guardar" data-id="${show.id}" data-nome="${show.name.replace(/"/g, '&quot;')}" data-generos="${generos.join(",")}" data-imagem="${imagem || ""}" data-avaliacao="${formatarAvaliacao(show.rating)}" data-status="${show.status}" data-estreia="${show.premiered ? show.premiered.slice(0,4) : ""}">Guardar no arquivo</button></div>`;
 
   return `
     <article class="processo">
@@ -92,6 +158,7 @@ function criarCartaoDeProcesso(show) {
         <p class="sinopse">${limparHtml(show.summary)}</p>
       </div>
     </article>
+    ${botaoAcao}
   `;
 }
 
@@ -166,4 +233,74 @@ listaSugestoes.addEventListener("click", (evento) => {
   const titulo = chip.dataset.titulo;
   campoBusca.value = titulo;
   buscarNoArquivo(titulo);
+});
+
+// ==========================================================================
+// Supabase — botões de guardar/remover favoritos
+// ==========================================================================
+
+areaResultado.addEventListener("click", async (evento) => {
+  const botao = evento.target.closest("button");
+  if (!botao) return;
+
+  // Botão GUARDAR
+  if (botao.classList.contains("botao-guardar")) {
+    const id = Number(botao.dataset.id);
+    const nome = botao.dataset.nome;
+    const generos = botao.dataset.generos;
+    const imagem = botao.dataset.imagem;
+    const avaliacao = botao.dataset.avaliacao;
+    const status = botao.dataset.status;
+    const estreia = botao.dataset.estreia;
+
+    botao.disabled = true;
+    botao.textContent = "Salvando...";
+
+    // Inicializa Supabase se necessário
+    if (!supabaseCliente) {
+      await initSupabase();
+    }
+
+    if (supabaseCliente) {
+      await salvarFavorito({ id, name: nome, genres: generos.split(","), image: { medium: imagem }, rating: { average: avaliacao }, status, premiered: estreia ? `${estreia}-01-01` : null });
+    }
+
+    botao.disabled = false;
+    botao.textContent = "Já guardado";
+    botao.classList.remove("botao-guardar");
+    botao.classList.add("botao-jaguardado");
+  }
+
+  // Botão REMOVER
+  if (botao.classList.contains("botao-remover")) {
+    const dbId = Number(botao.dataset.dbId);
+
+    botao.disabled = true;
+    botao.textContent = "Removendo...";
+
+    if (!supabaseCliente) {
+      await initSupabase();
+    }
+
+    if (supabaseCliente) {
+      await removerFavorito(dbId);
+    }
+
+    botao.closest(".favorito-card, .processo").remove();
+    botao.disabled = false;
+  }
+});
+
+// Botão limpar busca
+document.addEventListener("click", (evento) => {
+  if (evento.target.classList.contains("botao-limpar")) {
+    areaResultado.innerHTML = "";
+    campoBusca.value = "";
+    campoBusca.focus();
+  }
+});
+
+// Carregar favoritos ao abrir a página (ETAPA 02)
+document.addEventListener("DOMContentLoaded", () => {
+  carregarFavoritos();
 });
