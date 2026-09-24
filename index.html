@@ -3,54 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Atlas das Frutas Faladas — Expressões Idiomáticas do Brasil</title>
-  <meta name="description" content="Um atlas interativo das expressões idiomáticas da língua portuguesa do Brasil, com foco em expressões que envolvem frutas e alimentos.">
+  <title>Arquivo Sombrio — Catálogo de Terror &amp; Suspense</title>
+  <meta name="description" content="Catálogo de séries e filmes de terror, suspense e slasher, consultado ao vivo na base da TVmaze.">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Playfair+Display:wght@400;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <header class="cabecalho">
-    <p class="selo">Linguística · Atlas Digital</p>
-    <h1 class="titulo">Atlas das Frutas Faladas</h1>
+    <p class="selo">Confidencial</p>
+    <h1 class="titulo">Arquivo Sombrio</h1>
     <p class="subtitulo">
-      Expressões idiomáticas da língua portuguesa do Brasil que envolvem
-      frutas, legumes e oleaginosas — uma viagem pelas palavras que tropeçam
-      na fala cotidiana.
+      Um dossiê de séries e filmes de terror, suspense e slasher, montado a
+      partir dos registros públicos da TVmaze.
     </p>
   </header>
 
   <main>
-    <section class="secao-busca" aria-label="Buscar expressões">
+    <section class="secao-busca" aria-label="Buscar no arquivo">
       <form id="formulario-busca" class="formulario-busca">
-        <label for="campo-busca" class="rotulo-campo">Buscar por expressão ou fruta</label>
+        <label for="campo-busca" class="rotulo-campo">Nome do título a investigar</label>
         <div class="linha-busca">
           <input
             type="text"
             id="campo-busca"
             class="campo-busca"
-            placeholder="Ex.: abacate, de caju em caju, banana..."
+            placeholder="Ex.: Round 6, Hannibal, American Horror Story..."
             autocomplete="off"
           >
-          <button type="submit" id="botao-buscar" class="botao-buscar">Explorar</button>
+          <button type="submit" id="botao-buscar" class="botao-buscar">Abrir processo</button>
         </div>
       </form>
 
       <div class="sugestoes">
-        <span class="sugestoes-rotulo">Expressões para explorar:</span>
+        <span class="sugestoes-rotulo">Casos sugeridos:</span>
         <div class="chips" id="lista-sugestoes">
-          <button type="button" class="chip" data-titulo="Abacate">Abacate</button>
-          <button type="button" class="chip" data-titulo="Caju">Caju</button>
-          <button type="button" class="chip" data-titulo="Banana">Banana</button>
-          <button type="button" class="chip" data-titulo="Limão">Limão</button>
-          <button type="button" class="chip" data-titulo="Manga">Manga</button>
-          <button type="button" class="chip" data-titulo="Laranja">Laranja</button>
-          <button type="button" class="chip" data-titulo="Melancia">Melancia</button>
-          <button type="button" class="chip" data-titulo="Goiaba">Goiaba</button>
+          <button type="button" class="chip" data-titulo="Stranger Things">Stranger Things</button>
+          <button type="button" class="chip" data-titulo="American Horror Story">American Horror Story</button>
+          <button type="button" class="chip" data-titulo="Hannibal">Hannibal</button>
+          <button type="button" class="chip" data-titulo="The Walking Dead">The Walking Dead</button>
+          <button type="button" class="chip" data-titulo="Bates Motel">Bates Motel</button>
+          <button type="button" class="chip" data-titulo="Chucky">Chucky</button>
+          <button type="button" class="chip" data-titulo="Wednesday">Wednesday</button>
+          <button type="button" class="chip" data-titulo="Dexter">Dexter</button>
         </div>
       </div>
     </section>
@@ -58,56 +57,8 @@
     <section class="secao-resultados" aria-label="Resultados da busca">
       <div id="resultado" class="grade-resultados">
         <p class="estado-vazio">
-          Nenhuma expressão explorada ainda. Digite uma fruta, expressão ou
-          escolha um dos sugeridos acima para começar.
-        </p>
-      </div>
-    </section>
-
-    <section class="secao-mapa" aria-label="Mapa de ocorrências">
-      <h2 class="titulo-mapa">Mapa de Ocorrências</h2>
-      <p class="subtit-mapa">
-        Regiões do Brasil onde cada expressão foi identificada — baseado em
-        corpus textual e vídeos de redes sociais.
-      </p>
-      <div class="mapa-brasil" id="mapa-brasil">
-        <div class="estado estado-norte" data-regioes="norte" tabindex="0" role="button" aria-label="Região Norte">
-          <span class="nome-estado">Norte</span>
-          <span class="sigla-estado">N</span>
-        </div>
-        <div class="estado estado-nordeste" data-regioes="nordeste" tabindex="0" role="button" aria-label="Região Nordeste">
-          <span class="nome-estado">Nordeste</span>
-          <span class="sigla-estado">NE</span>
-        </div>
-        <div class="estado estado-sudeste" data-regioes="sudeste" tabindex="0" role="button" aria-label="Região Sudeste">
-          <span class="nome-estado">Sudeste</span>
-          <span class="sigla-estado">SE</span>
-        </div>
-        <div class="estado estado-sul" data-regioes="sul" tabindex="0" role="button" aria-label="Região Sul">
-          <span class="nome-estado">Sul</span>
-          <span class="sigla-estado">S</span>
-        </div>
-        <div class="estado estado-centro-oeste" data-regioes="centro-oeste" tabindex="0" role="button" aria-label="Região Centro-Oeste">
-          <span class="nome-estado">Centro-Oeste</span>
-          <span class="sigla-estado">CO</span>
-        </div>
-      </div>
-      <div class="lenda-mapa">
-        <span class="lenda-item"><span class="ponto ativo"></span> Encontrada na região</span>
-        <span class="lenda-item"><span class="ponto inativo"></span> Não identificada</span>
-      </div>
-    </section>
-
-    <section class="secao-favoritos" aria-label="Expressões favoritas">
-      <h2 class="titulo-favoritos">Minhas Expressões</h2>
-      <p class="subtit-favoritos">
-        Expressões que você guardou — sobrevivem ao fechar o navegador,
-        gravadas no seu navegador.
-      </p>
-      <div id="favoritos-lista" class="grade-favoritos">
-        <p class="estado-vazio">
-          Nenhuma expressão guardada ainda. Clique em "Guardar" em qualquer
-          expressão para salvá-la aqui.
+          Nenhum processo aberto ainda. Digite um título ou escolha um caso
+          sugerido acima para começar a investigação.
         </p>
       </div>
     </section>
@@ -115,11 +66,12 @@
 
   <footer class="rodape">
     <p>
-      Expressões coletadas de corpus textual e vídeos do TikTok.
-      Projeto criado para fins educacionais — <a href="https://www.ftd.com" target="_blank" rel="noopener">Atlas Digital</a>.
+      Dados fornecidos pela
+      <a href="https://www.tvmaze.com/api" target="_blank" rel="noopener">TVmaze API</a>.
+      Projeto criado para fins educacionais.
     </p>
   </footer>
 
-  <script type="module" src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
