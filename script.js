@@ -15,13 +15,13 @@ const GENEROS_SOMBRIOS = ["Horror", "Thriller", "Mystery", "Crime", "Supernatura
 // CONFIGURAÇÃO SUPABASE (ETAPA 02 - Persistência)
 // Substituir com os dados do projeto Supabase
 // ==========================================================================
-const SUPABASE_URL = "https://SEU-PROJETO.supabase.co";
-const SUPABASE_KEY = "SUA_CHAVE_ANON";
+const SUPABASE_URL = "https://bknlxebssjawzxwbvglt.supabase.co";
+const SUPABASE_KEY = "sb_publishable_mfYUr0Q4yPgKufFm0foBiQ_q0Sy8GAb";
 
 let supabaseCliente = null;
 
 async function initSupabase() {
-  if (!SUPABASE_URL || SUPABASE_URL.includes("SEU-PROJETO")) {
+  if (!SUPABASE_URL) {
     console.warn("Supabase não configurado. Configure SUPABASE_URL e SUPABASE_KEY no script.js");
     return null;
   }
@@ -51,7 +51,10 @@ async function listarFavoritos() {
 async function salvarFavorito(show) {
   if (!supabaseCliente) { console.error("Supabase não inicializado"); return null; }
   try {
+    // Gerar ID único client-side pois a sequence do Supabase não funciona com chave anon
+    const idUnico = Date.now() + Math.floor(Math.random() * 100000);
     const { data, error } = await supabaseCliente.from("favoritos").insert({
+      id: idUnico,
       nome_show: show.name,
       generos: show.genres && show.genres.length ? show.genres.join(", ") : null,
       imagem_url: show.image && (show.image.medium || show.image.original) || null,
@@ -262,13 +265,19 @@ areaResultado.addEventListener("click", async (evento) => {
     }
 
     if (supabaseCliente) {
-      await salvarFavorito({ id, name: nome, genres: generos.split(","), image: { medium: imagem }, rating: { average: avaliacao }, status, premiered: estreia ? `${estreia}-01-01` : null });
+      const resultado = await salvarFavorito({ id, name: nome, genres: generos.split(","), image: { medium: imagem }, rating: { average: avaliacao }, status, premiered: estreia ? `${estreia}-01-01` : null });
+      if (resultado) {
+        botao.textContent = "Já guardado";
+        botao.classList.remove("botao-guardar");
+        botao.classList.add("botao-jaguardado");
+      } else {
+        botao.textContent = "Falha ao guardar";
+        botao.disabled = false;
+      }
+    } else {
+      botao.textContent = "Configure o Supabase no script.js";
+      botao.disabled = false;
     }
-
-    botao.disabled = false;
-    botao.textContent = "Já guardado";
-    botao.classList.remove("botao-guardar");
-    botao.classList.add("botao-jaguardado");
   }
 
   // Botão REMOVER
