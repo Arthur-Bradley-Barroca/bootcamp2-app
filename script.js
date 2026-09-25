@@ -239,6 +239,55 @@ listaSugestoes.addEventListener("click", (evento) => {
 });
 
 // ==========================================================================
+// Renderizar lista de favoritos (ETAPA 02)
+// ==========================================================================
+
+function criarCartaoFavorito(favorito) {
+  const capaHtml = favorito.imagem_url
+    ? `<img class="capa" src="${favorito.imagem_url}" alt="Capa de ${favorito.nome_show}" loading="lazy">`
+    : `<div class="capa capa--vazia">Sem registro fotográfico</div>`;
+
+  const meta = [favorito.status, favorito.regiaodeestreia]
+    .filter(Boolean)
+    .join(" · ");
+
+  const generosHtml = favorito.generos
+    ? `<div class="generos">${favorito.generos.split(", ").map(g => `<span class="tag-genero">${g}</span>`).join("")}</div>`
+    : "";
+
+  return `
+    <div class="favorito-card">
+      ${capaHtml}
+      ${generosHtml}
+      <h3 class="favorito-nome">${favorito.nome_show}</h3>
+      <p class="favorito-meta">${meta || "Sem dados"}</p>
+      <div class="favorito-acoes">
+        <button type="button" class="botao-remover" data-db-id="${favorito.id}">Remover do arquivo</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderizarFavoritos(favoritos) {
+  const lista = document.getElementById("favoritos-lista");
+  if (!lista) return;
+
+  if (!favoritos || favoritos.length === 0) {
+    lista.innerHTML = `
+      <p class="sem-favoritos">Nenhum arquivo guardado. Faça buscas e clique em "Guardar no arquivo" para salvar seus casos.</p>
+    `;
+    return;
+  }
+
+  lista.innerHTML = favoritos.map(criarCartaoFavorito).join("");
+}
+
+async function carregarFavoritos() {
+  const favoritos = await listarFavoritos();
+  renderizarFavoritos(favoritos);
+}
+
+// ==========================================================================
 // Supabase — botões de guardar/remover favoritos
 // ==========================================================================
 
