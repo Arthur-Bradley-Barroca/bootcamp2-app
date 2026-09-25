@@ -319,6 +319,8 @@ areaResultado.addEventListener("click", async (evento) => {
         botao.textContent = "Já guardado";
         botao.classList.remove("botao-guardar");
         botao.classList.add("botao-jaguardado");
+        // Atualiza a lista de favoritos depois de salvar
+        await carregarFavoritos();
       } else {
         botao.textContent = "Falha ao guardar";
         botao.disabled = false;
