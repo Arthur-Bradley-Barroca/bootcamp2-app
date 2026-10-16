@@ -291,7 +291,7 @@ async function carregarFavoritos() {
 // Supabase — botões de guardar/remover favoritos
 // ==========================================================================
 
-areaResultado.addEventListener("click", async (evento) => {
+document.addEventListener("click", async (evento) => {
   const botao = evento.target.closest("button");
   if (!botao) return;
 
@@ -346,7 +346,7 @@ areaResultado.addEventListener("click", async (evento) => {
       await removerFavorito(dbId);
     }
 
-    botao.closest(".favorito-card, .processo").remove();
+    await carregarFavoritos();
     botao.disabled = false;
   }
 });
@@ -361,6 +361,7 @@ document.addEventListener("click", (evento) => {
 });
 
 // Carregar favoritos ao abrir a página (ETAPA 02)
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  await initSupabase();
   carregarFavoritos();
 });
