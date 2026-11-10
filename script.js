@@ -98,6 +98,13 @@ function limparHtml(textoComHtml) {
   return div.textContent || div.innerText || "";
 }
 
+// Escapa texto vindo da API ou do banco antes de colocar em innerHTML.
+function escapeHtml(texto) {
+  return String(texto ?? "")
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
 function formatarAvaliacao(rating) {
   if (!rating || rating.average === null || rating.average === undefined) {
     return "N/D";
@@ -127,21 +134,21 @@ function criarCartaoDeProcesso(show, favoritoId = null) {
     : `<span class="tag-genero tag-genero--vazia">Não catalogado</span>`;
 
   const capaHtml = imagem
-    ? `<img class="capa" src="${imagem}" alt="Capa de ${show.name}" loading="lazy">`
+    ? `<img class="capa" src="${imagem}" alt="Capa de ${escapeHtml(show.name)}" loading="lazy">`
     : `<div class="capa capa--vazia">Sem registro fotográfico</div>`;
 
   const jaSalvo = !!favoritoId;
   const botaoAcao = jaSalvo
     ? `<div class="favorito-acoes"><button type="button" class="botao-remover" data-db-id="${favoritoId}">Remover do arquivo</button></div>`
-    : `<div class="favorito-acoes"><button type="button" class="botao-guardar" data-id="${show.id}" data-nome="${show.name.replace(/"/g, '&quot;')}" data-generos="${generos.join(",")}" data-imagem="${imagem || ""}" data-avaliacao="${formatarAvaliacao(show.rating)}" data-status="${show.status}" data-estreia="${show.premiered ? show.premiered.slice(0,4) : ""}">Guardar no arquivo</button></div>`;
+    : `<div class="favorito-acoes"><button type="button" class="botao-guardar" data-id="${show.id}" data-nome="${escapeHtml(show.name)}" data-generos="${generos.join(",")}" data-imagem="${imagem || ""}" data-avaliacao="${show.rating && show.rating.average ? show.rating.average : ''}" data-status="${show.status}" data-estreia="${show.premiered ? show.premiered.slice(0,4) : ""}">Guardar no arquivo</button></div>`;
 
   return `
-    <article class="processo">
+    <article class="processo" style="--i:${numeroDoProcesso}">
       <p class="numero-processo">Processo nº ${numero}</p>
       ${sombrio ? '<span class="selo-confirmado">Caso confirmado</span>' : ""}
       ${capaHtml}
       <div class="corpo-processo">
-        <h2 class="nome-titulo">${show.name}</h2>
+        <h2 class="nome-titulo">${escapeHtml(show.name)}</h2>
         <div class="generos">${tagsGeneros}</div>
         <div class="ficha">
           <div class="campo-ficha">
@@ -160,8 +167,8 @@ function criarCartaoDeProcesso(show, favoritoId = null) {
         <p class="rotulo-sinopse">Resumo do caso</p>
         <p class="sinopse">${limparHtml(show.summary)}</p>
       </div>
+      ${botaoAcao}
     </article>
-    ${botaoAcao}
   `;
 }
 
@@ -244,7 +251,7 @@ listaSugestoes.addEventListener("click", (evento) => {
 
 function criarCartaoFavorito(favorito) {
   const capaHtml = favorito.imagem_url
-    ? `<img class="capa" src="${favorito.imagem_url}" alt="Capa de ${favorito.nome_show}" loading="lazy">`
+    ? `<img class="capa" src="${escapeHtml(favorito.imagem_url)}" alt="Capa de ${escapeHtml(favorito.nome_show)}" loading="lazy">`
     : `<div class="capa capa--vazia">Sem registro fotográfico</div>`;
 
   const meta = [favorito.status, favorito.regiaodeestreia]
@@ -252,15 +259,15 @@ function criarCartaoFavorito(favorito) {
     .join(" · ");
 
   const generosHtml = favorito.generos
-    ? `<div class="generos">${favorito.generos.split(", ").map(g => `<span class="tag-genero">${g}</span>`).join("")}</div>`
+    ? `<div class="generos">${favorito.generos.split(", ").map(g => `<span class="tag-genero">${escapeHtml(g)}</span>`).join("")}</div>`
     : "";
 
   return `
     <div class="favorito-card">
       ${capaHtml}
       ${generosHtml}
-      <h3 class="favorito-nome">${favorito.nome_show}</h3>
-      <p class="favorito-meta">${meta || "Sem dados"}</p>
+      <h3 class="favorito-nome">${escapeHtml(favorito.nome_show)}</h3>
+      <p class="favorito-meta">${escapeHtml(meta) || "Sem dados"}</p>
       <div class="favorito-acoes">
         <button type="button" class="botao-remover" data-db-id="${favorito.id}">Remover do arquivo</button>
       </div>
@@ -271,6 +278,9 @@ function criarCartaoFavorito(favorito) {
 function renderizarFavoritos(favoritos) {
   const lista = document.getElementById("favoritos-lista");
   if (!lista) return;
+
+  const contagem = document.getElementById("contagem-favoritos");
+  if (contagem) contagem.textContent = favoritos && favoritos.length ? favoritos.length : "";
 
   if (!favoritos || favoritos.length === 0) {
     lista.innerHTML = `
